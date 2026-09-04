@@ -61,8 +61,22 @@ function initialiseWordbook() {
       const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(word)}&langpair=en|zh-CN`;
       const response = await fetch(url);
       const data = await response.json();
-      const translation = data?.responseData?.translatedText?.trim();
-      if (!response.ok || !translation) throw new Error("翻译服务暂时不可用");
+      const candidates = [
+        data?.responseData?.translatedText,
+        ...(data?.matches || []).map((match) => match.translation),
+      ].map((item) => item?.trim()).filter(Boolean);
+      const scoreTranslation = (item) => {
+        const chineseCount = (item.match(/[\u3400-\u9fff]/g) || []).length;
+        const latinCount = (item.match(/[a-z]/gi) || []).length;
+        const digitCount = (item.match(/\d/g) || []).length;
+        return chineseCount * 10 - latinCount * 3 - digitCount * 5;
+      };
+      const translation = candidates
+        .filter((item) => /[\u3400-\u9fff]/.test(item))
+        .sort((a, b) => scoreTranslation(b) - scoreTranslation(a))[0];
+      if (!response.ok || data?.responseStatus !== 200 || !translation) {
+        throw new Error("翻译服务没有返回有效中文释义");
+      }
       $("#meaning").value = translation;
       message("#word-message", "已生成中文意思，可按需要修改后再添加。");
     } catch (error) {
