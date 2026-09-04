@@ -52,6 +52,25 @@ function initialiseWordbook() {
   const letterOf = (word) => /^[a-z]/i.test(word) ? word[0].toUpperCase() : "#";
   const saveWords = () => localStorage.setItem(wordsKey(currentUser), JSON.stringify(entries));
   $("#user-name").textContent = `你好，${currentUser}`;
+  $("#translate-button").addEventListener("click", async () => {
+    const word = $("#word").value.trim();
+    if (!word) return message("#word-message", "请先输入英文单词。");
+    const button = $("#translate-button");
+    button.disabled = true; button.textContent = "生成中…"; message("#word-message", "");
+    try {
+      const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(word)}&langpair=en|zh-CN`;
+      const response = await fetch(url);
+      const data = await response.json();
+      const translation = data?.responseData?.translatedText?.trim();
+      if (!response.ok || !translation) throw new Error("翻译服务暂时不可用");
+      $("#meaning").value = translation;
+      message("#word-message", "已生成中文意思，可按需要修改后再添加。");
+    } catch (error) {
+      message("#word-message", "自动生成失败，请稍后重试或手动填写。");
+    } finally {
+      button.disabled = false; button.textContent = "自动生成中文意思";
+    }
+  });
   function render() {
     const query = $("#search").value.trim().toLocaleLowerCase();
     const visible = entries.filter(({ word, meaning }) => !query || word.toLocaleLowerCase().includes(query) || meaning.toLocaleLowerCase().includes(query));
