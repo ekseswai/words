@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="个人英语单词本" />
+    <title>单词本 · 登录</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body data-page="login">
+    <main class="page-shell">
+      <header class="hero">
+        <p class="eyebrow">PERSONAL WORDBOOK</p>
+        <h1>单词本</h1>
+        <p class="subtitle">收集、查找，随时巩固你的英语单词。</p>
+      </header>
+      <section id="auth-card" class="card auth-card" aria-labelledby="auth-title">
+        <div>
+          <p class="section-kicker">同步你的词库</p>
+          <h2 id="auth-title">登录后开始记录</h2>
+          <p class="muted">注册一个本地账号，词库会保存在当前浏览器。</p>
+        </div>
+        <form id="auth-form" class="inline-form">
+          <label class="sr-only" for="username">用户名</label>
+          <input id="username" type="text" placeholder="用户名" autocomplete="username" minlength="3" required />
+          <label class="sr-only" for="password">密码</label>
+          <input id="password" type="password" placeholder="密码（至少 6 位）" autocomplete="current-password" minlength="6" required />
+          <button id="auth-submit" type="submit">登录</button>
+        </form>
+        <button id="auth-switch" class="text-button auth-switch" type="button">没有账号？注册</button>
+        <p id="auth-message" class="form-message" aria-live="polite"></p>
+      </section>
+    </main>
+    <script src="app.js"></script>
+  </body>
+</html>
