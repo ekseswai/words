@@ -52,37 +52,28 @@ function initialiseWordbook() {
   const letterOf = (word) => /^[a-z]/i.test(word) ? word[0].toUpperCase() : "#";
   const saveWords = () => localStorage.setItem(wordsKey(currentUser), JSON.stringify(entries));
   $("#user-name").textContent = `你好，${currentUser}`;
+  const dictionaryCache = new Map();
   $("#translate-button").addEventListener("click", async () => {
     const word = $("#word").value.trim();
     if (!word) return message("#word-message", "请先输入英文单词。");
     const button = $("#translate-button");
-    button.disabled = true; button.textContent = "生成中…"; message("#word-message", "");
+    const initial = word[0].toLowerCase();
+    if (!/^[a-z]$/.test(initial)) return message("#word-message", "仅支持以英文字母开头的单词查询。");
+    button.disabled = true; button.textContent = "查询中…"; message("#word-message", "");
     try {
-      const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(word)}&langpair=en|zh-CN`;
-      const response = await fetch(url);
-      const data = await response.json();
-      const candidates = [
-        data?.responseData?.translatedText,
-        ...(data?.matches || []).map((match) => match.translation),
-      ].map((item) => item?.trim()).filter(Boolean);
-      const scoreTranslation = (item) => {
-        const chineseCount = (item.match(/[\u3400-\u9fff]/g) || []).length;
-        const latinCount = (item.match(/[a-z]/gi) || []).length;
-        const digitCount = (item.match(/\d/g) || []).length;
-        return chineseCount * 10 - latinCount * 3 - digitCount * 5;
-      };
-      const translation = candidates
-        .filter((item) => /[\u3400-\u9fff]/.test(item))
-        .sort((a, b) => scoreTranslation(b) - scoreTranslation(a))[0];
-      if (!response.ok || data?.responseStatus !== 200 || !translation) {
-        throw new Error("翻译服务没有返回有效中文释义");
+      if (!dictionaryCache.has(initial)) {
+        const response = await fetch(`data/${initial}.json`);
+        if (!response.ok) throw new Error("词库文件无法加载");
+        dictionaryCache.set(initial, await response.json());
       }
+      const translation = dictionaryCache.get(initial)[normalize(word)];
+      if (!translation) throw new Error("词库中没有该单词");
       $("#meaning").value = translation;
-      message("#word-message", "已生成中文意思，可按需要修改后再添加。");
+      message("#word-message", "已查询中文意思，可按需要修改后再添加。");
     } catch (error) {
-      message("#word-message", "自动生成失败，请稍后重试或手动填写。");
+      message("#word-message", "词库中未找到该单词，请手动填写中文意思。");
     } finally {
-      button.disabled = false; button.textContent = "自动生成中文意思";
+      button.disabled = false; button.textContent = "查询中文意思";
     }
   });
   function render() {
