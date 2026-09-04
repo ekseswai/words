@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="个人英语单词本" />
+    <title>单词本</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body data-page="wordbook">
+    <main class="page-shell">
+      <header class="hero compact-hero">
+        <p class="eyebrow">PERSONAL WORDBOOK</p>
+        <h1>单词本</h1>
+      </header>
+      <section class="toolbar" aria-label="词库操作">
+        <div class="identity">
+          <span id="user-name"></span>
+          <button id="sign-out" class="text-button" type="button">退出登录</button>
+        </div>
+        <label class="search-field" for="search">
+          <span class="sr-only">搜索英文或中文</span>
+          <input id="search" type="search" placeholder="搜索英文或中文意思" autocomplete="off" />
+        </label>
+      </section>
+      <section class="card add-card" aria-labelledby="add-title">
+        <div><p class="section-kicker">新增单词</p><h2 id="add-title">今天想记住什么？</h2></div>
+        <form id="word-form" class="word-form">
+          <label><span>英文单词</span><input id="word" name="word" placeholder="例如: resilient" autocomplete="off" required /></label>
+          <label><span>中文意思</span><input id="meaning" name="meaning" placeholder="例如: 有韧性的；能迅速恢复的" autocomplete="off" required /></label>
+          <button type="submit">添加</button>
+        </form>
+        <p id="word-message" class="form-message" aria-live="polite"></p>
+      </section>
+      <section class="dictionary" aria-live="polite">
+        <div class="dictionary-heading"><h2>词库</h2><span id="word-count">0 个单词</span></div>
+        <div id="word-list"></div>
+      </section>
+    </main>
+    <template id="letter-group-template"><section class="letter-group"><h3></h3><ul></ul></section></template>
+    <script src="app.js"></script>
+  </body>
+</html>
